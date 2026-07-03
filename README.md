@@ -43,12 +43,15 @@ across files) and `has_changes` — usable as a gate:
         run: echo "::warning::semantic policy change — re-approval required"
 ```
 
-While this repo is private, enable *Settings → Actions → Access → accessible
-from repositories in the ConceptPending organization* so sibling repos can use it.
+Pin to a commit SHA (or the `v1` tag) rather than `@main`, per standard
+supply-chain hygiene. See the open [demo PR](../../pull/1) for the comment
+rendered on a real semantic change.
 
 ## Kernel vendoring
 
-`kernel/` is vendored from `ConceptPending/statespec` at the pinned tag by
-`scripts/vendor_kernel.py` (`sync` / `check`); never hand-edit it. Envelope
+`kernel/` is vendored from the statespec kernel repo at the pinned tag by
+`scripts/vendor_kernel.py` (`sync` / `check`); never hand-edit it. The kernel
+is MIT-licensed, stdlib-only, and also visible in the
+[baseplate](https://github.com/ConceptPending/baseplate) reference branch. Envelope
 `schema_version` 1 and 2 artifacts are both understood (v1 = single digest,
 strict: any change classifies as semantic).
