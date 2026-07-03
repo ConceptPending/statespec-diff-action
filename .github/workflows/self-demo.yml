@@ -1,0 +1,18 @@
+# Living demo: PRs that touch demo/*.policy.json get the action's own comment
+# (resolved via the local path, so this works while the repo is private).
+name: self-demo
+
+on:
+  pull_request:
+    paths: ["demo/*.policy.json"]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  policy-diff:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./
