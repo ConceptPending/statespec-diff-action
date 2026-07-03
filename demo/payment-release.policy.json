@@ -1,7 +1,7 @@
 {
   "presentation_digest": "509642abaa12d27747a73b6f4466a0d08eef9f9ce75966baee1940780cd1d52b",
   "schema_version": 2,
-  "semantic_digest": "7a281d69b05fee083bb3274c2ca701d2937b0f90c04e55936df6bf4512bb3284",
+  "semantic_digest": "675991ab0d3e37065db2ad9b15d35554eaba15f780b2a6a12e3ec3ee84436aa9",
   "spec": {
     "fields": {
       "risk_score": "int"
@@ -48,7 +48,7 @@
           "right": {
             "kind": "literal",
             "type": "int",
-            "value": 30
+            "value": 75
           }
         },
         "id": "PAY-RELEASE",
@@ -56,12 +56,13 @@
         "name": "release",
         "opaque": {},
         "roles": [
+          "compliance",
           "treasury"
         ],
         "to": "released"
       }
     ],
-    "version": 1
+    "version": 2
   },
-  "spec_version": 1
+  "spec_version": 2
 }
