@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pytest
+      - run: pytest -q
+      - name: kernel parity
+        run: |
+          if git clone --quiet https://github.com/ConceptPending/statespec /tmp/statespec 2>/dev/null \
+             && git -C /tmp/statespec fetch --quiet --tags; then
+            STATESPEC_REPO=/tmp/statespec python scripts/vendor_kernel.py check
+          else
+            echo "::warning::statespec repo unreachable; kernel parity not verified in CI"
+          fi

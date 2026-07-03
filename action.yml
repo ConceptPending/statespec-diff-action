@@ -1,0 +1,67 @@
+name: statespec-diff
+description: >-
+  Comment the rendered statespec policy diff on PRs that touch .policy.json
+  artifacts — semantic (approval-invalidating) vs presentation (wording-only)
+  changes, classified from the artifacts' declared digests.
+branding:
+  icon: git-pull-request
+  color: purple
+
+inputs:
+  github-token:
+    description: Token used to post the sticky PR comment.
+    default: ${{ github.token }}
+  artifact-glob:
+    description: Basename glob for policy artifacts.
+    default: "*.policy.json"
+  comment:
+    description: Post/update the sticky PR comment ("true"/"false").
+    default: "true"
+
+outputs:
+  change_kind:
+    description: Worst change across artifacts (semantic|added|removed|presentation|none).
+    value: ${{ steps.diff.outputs.change_kind }}
+  has_changes:
+    description: Whether any policy artifact changed.
+    value: ${{ steps.diff.outputs.has_changes }}
+
+runs:
+  using: composite
+  steps:
+    - name: Fetch base commit
+      shell: bash
+      env:
+        BASE_SHA: ${{ github.event.pull_request.base.sha }}
+      run: git fetch --quiet --depth=1 origin "$BASE_SHA" || true
+
+    - name: Render policy diff
+      id: diff
+      shell: bash
+      env:
+        BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        GLOB: ${{ inputs.artifact-glob }}
+      run: |
+        python3 "${{ github.action_path }}/scripts/diff_policy.py" \
+          --base-ref "$BASE_SHA" --head-ref "$HEAD_SHA" \
+          --glob "$GLOB" --out "$RUNNER_TEMP/statespec-diff.md"
+
+    - name: Post sticky comment
+      if: inputs.comment == 'true' && steps.diff.outputs.has_changes == 'true' && github.event_name == 'pull_request'
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
+        PR: ${{ github.event.pull_request.number }}
+        REPO: ${{ github.repository }}
+      run: |
+        body_file="$RUNNER_TEMP/statespec-diff.md"
+        marker='<!-- statespec-diff -->'
+        existing=$(gh api "repos/$REPO/issues/$PR/comments" --paginate \
+          --jq ".[] | select(.body | startswith(\"$marker\")) | .id" | head -1)
+        if [ -n "$existing" ]; then
+          gh api -X PATCH "repos/$REPO/issues/comments/$existing" -F body=@"$body_file" >/dev/null
+        else
+          gh api "repos/$REPO/issues/$PR/comments" -F body=@"$body_file" >/dev/null
+        fi
+        echo "sticky comment updated"
