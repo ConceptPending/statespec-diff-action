@@ -29,11 +29,14 @@ outputs:
 runs:
   using: composite
   steps:
-    - name: Fetch base commit
+    - name: Fetch compared commits
       shell: bash
       env:
         BASE_SHA: ${{ github.event.pull_request.base.sha }}
-      run: git fetch --quiet --depth=1 origin "$BASE_SHA" || true
+        HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+      # actions/checkout on pull_request checks out the MERGE commit at depth 1,
+      # so neither compared commit object is guaranteed to be present locally.
+      run: git fetch --quiet --depth=1 origin "$BASE_SHA" "$HEAD_SHA" || true
 
     - name: Render policy diff
       id: diff
