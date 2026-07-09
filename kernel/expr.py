@@ -1,4 +1,4 @@
-# Vendored from ConceptPending/statespec statespec-v0.4.0 (src/statespec) — DO NOT EDIT.
+# Vendored from ConceptPending/statespec statespec-v0.4.1 (src/statespec) — DO NOT EDIT.
 # Only import statements' `statespec` prefix -> `kernel` is rewritten.
 # Sync/verify with scripts/vendor_kernel.py.
 """Declarative guard/invariant expressions.

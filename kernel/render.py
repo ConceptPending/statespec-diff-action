@@ -1,4 +1,4 @@
-# Vendored from ConceptPending/statespec statespec-v0.4.0 (src/statespec) — DO NOT EDIT.
+# Vendored from ConceptPending/statespec statespec-v0.4.1 (src/statespec) — DO NOT EDIT.
 # Only import statements' `statespec` prefix -> `kernel` is rewritten.
 # Sync/verify with scripts/vendor_kernel.py.
 """Turn a `StateSpec` into artifacts humans read.
@@ -89,14 +89,24 @@ def to_dict(spec: StateSpec) -> dict:
     }
 
 
-def to_markdown_doc(spec: StateSpec) -> str:
-    """The full generated artifact: title, diagram, table, invariants."""
+def to_markdown_doc(
+    spec: StateSpec,
+    *,
+    regenerate_hint: str = "`make spec-doc`",
+    source_hint: str | None = None,
+) -> str:
+    """The full generated artifact: title, diagram, table, invariants.
+
+    `regenerate_hint` and `source_hint` name, for the reader of the generated
+    doc, the consuming repo's regeneration command and spec location; the
+    defaults match baseplate's layout for backwards compatibility."""
+    source = source_hint or f"`app/statespec/{spec.name}_spec.py`"
     parts = [
         f"# {spec.title}",
         "",
         "> **Generated file — do not edit by hand.** Regenerate with "
-        "`make spec-doc`. The source of truth is the spec in "
-        f"`app/statespec/{spec.name}_spec.py`; this document is rendered from "
+        f"{regenerate_hint}. The source of truth is the spec in "
+        f"{source}; this document is rendered from "
         "it so the picture can never drift from the enforced behaviour.",
         "",
         "## Lifecycle",
@@ -122,10 +132,11 @@ def to_markdown_doc(spec: StateSpec) -> str:
             "",
             "Properties that must hold in every reachable state. The engine "
             "evaluates them against the proposed post-state on every transition "
-            "and refuses the transition if any fails; the property-based suite "
-            "(Hypothesis) also checks them across random action sequences. (A "
-            "mutation made entirely outside a transition is still beyond the "
-            "engine's reach — that is the database-constraint domain.)",
+            "and refuses the transition if any fails; pair this with a "
+            "property-based suite that checks them across random action "
+            "sequences. (A mutation made entirely outside a transition is "
+            "still beyond the engine's reach — that is the database-constraint "
+            "domain.)",
             "",
         ]
         for inv in spec.invariants:
