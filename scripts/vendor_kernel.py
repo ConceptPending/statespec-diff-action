@@ -24,7 +24,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-KERNEL_TAG = "statespec-v0.4.0"
+KERNEL_TAG = "statespec-v0.4.1"
 KERNEL_FILES = ["__init__.py", "core.py", "expr.py", "identity.py", "render.py"]
 SRC_PREFIX = "src/statespec"
 DEST = Path(__file__).resolve().parent.parent / "kernel"
