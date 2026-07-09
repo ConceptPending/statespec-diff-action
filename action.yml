@@ -2,7 +2,8 @@ name: statespec-diff
 description: >-
   Comment the rendered statespec policy diff on PRs that touch .policy.json
   artifacts — semantic (approval-invalidating) vs presentation (wording-only)
-  changes, classified from the artifacts' declared digests.
+  changes, classified from digests recomputed from each artifact's spec body
+  (declared digests are cross-checked; mismatches are flagged in the comment).
 branding:
   icon: git-pull-request
   color: purple
@@ -25,6 +26,12 @@ outputs:
   has_changes:
     description: Whether any policy artifact changed.
     value: ${{ steps.diff.outputs.has_changes }}
+  digest_verified:
+    description: >-
+      "false" if any changed artifact's declared digests did not match its
+      spec body (stale or hand-edited declaration). Gates that require an
+      untampered artifact should check this alongside change_kind.
+    value: ${{ steps.diff.outputs.digest_verified }}
 
 runs:
   using: composite
